@@ -5,14 +5,15 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-12-01/compute"
-	"github.com/golang/mock/gomock"
-	"github.com/google/go-cmp/cmp"
-	"github.com/sirupsen/logrus"
 	"github.com/ydataai/azure-quota-provider/mock"
 	"github.com/ydataai/azure-quota-provider/pkg/clients"
 	"github.com/ydataai/azure-quota-provider/pkg/common"
 	"github.com/ydataai/azure-quota-provider/pkg/service"
+
+	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-12-01/compute"
+	"github.com/golang/mock/gomock"
+	"github.com/google/go-cmp/cmp"
+	"github.com/sirupsen/logrus"
 )
 
 func TestAvailableGPU(t *testing.T) {

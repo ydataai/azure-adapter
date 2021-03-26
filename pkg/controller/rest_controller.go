@@ -4,10 +4,11 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 	"github.com/ydataai/azure-quota-provider/pkg/server"
 	"github.com/ydataai/azure-quota-provider/pkg/service"
+
+	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 // RESTController defines rest controller

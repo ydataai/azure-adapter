@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/sirupsen/logrus"
 	"github.com/ydataai/azure-quota-provider/pkg/clients"
 	"github.com/ydataai/azure-quota-provider/pkg/common"
 	"github.com/ydataai/azure-quota-provider/pkg/controller"
@@ -14,6 +13,8 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-12-01/compute"
 	"github.com/Azure/go-autorest/autorest/azure/auth"
+
+	"github.com/sirupsen/logrus"
 )
 
 func main() {

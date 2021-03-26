@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/sirupsen/logrus"
 	"github.com/ydataai/azure-quota-provider/pkg/common"
+
+	"github.com/sirupsen/logrus"
 )
 
 type configuration struct {
