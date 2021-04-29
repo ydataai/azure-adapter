@@ -38,7 +38,7 @@ func main() {
 	logger.SetLevel(applicationConfiguration.logLevel)
 
 	computeUsageClient := compute.NewUsageClient(applicationConfiguration.subscriptionID)
-	authorizer, err := auth.NewAuthorizerFromCLI()
+	authorizer, err := auth.NewAuthorizerFromEnvironment()
 	if err != nil {
 		logger.Error(err)
 		os.Exit(1)
