@@ -23,7 +23,7 @@ func (c *configuration) LoadEnvVars() error {
 	}
 	c.logLevel = level
 
-	c.subscriptionID, err = common.VariableFromEnvironment("SUBSCRIPTION_ID")
+	c.subscriptionID, err = common.VariableFromEnvironment("ARM_SUBSCRIPTION_ID")
 	if err != nil {
 		return err
 	}
