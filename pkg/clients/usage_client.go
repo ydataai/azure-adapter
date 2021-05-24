@@ -32,7 +32,7 @@ func NewUsageClient(
 
 // ComputeUsage fetches compute usage list and filter a machine type
 func (uc UsageClient) ComputeUsage(ctx context.Context, location string, machineType string) (compute.Usage, error) {
-	uc.logger.Info("Starting to fetch available GPU in Azure")
+	uc.logger.Info("fetching available GPUs in Azure")
 
 	result, err := uc.client.List(ctx, location)
 	if err != nil {
@@ -47,6 +47,8 @@ func (uc UsageClient) ComputeUsage(ctx context.Context, location string, machine
 			break
 		}
 	}
+
+	uc.logger.Infof("fetched available GPUs in Azure: %d of %d", *gpuUsage.CurrentValue, *gpuUsage.Limit)
 
 	return gpuUsage, nil
 }
