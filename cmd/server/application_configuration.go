@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/ydataai/azure-quota-provider/pkg/common"
+	"github.com/ydataai/azure-adapter/pkg/common"
 
 	"github.com/sirupsen/logrus"
 )

@@ -3,7 +3,7 @@ package controller
 import (
 	"time"
 
-	"github.com/ydataai/azure-quota-provider/pkg/common"
+	"github.com/ydataai/azure-adapter/pkg/common"
 )
 
 // RESTControllerConfiguration defines a struct with required environment variables for rest controller

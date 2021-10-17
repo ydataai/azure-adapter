@@ -5,15 +5,14 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/ydataai/azure-quota-provider/mock"
-	"github.com/ydataai/azure-quota-provider/pkg/clients"
-	"github.com/ydataai/azure-quota-provider/pkg/common"
-	"github.com/ydataai/azure-quota-provider/pkg/service"
+	"github.com/ydataai/azure-adapter/mock"
 
 	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-12-01/compute"
 	"github.com/golang/mock/gomock"
 	"github.com/google/go-cmp/cmp"
 	"github.com/sirupsen/logrus"
+	"github.com/ydataai/azure-adapter/pkg/component/usage"
+	"github.com/ydataai/azure-adapter/pkg/service"
 )
 
 func TestAvailableGPU(t *testing.T) {
@@ -22,12 +21,12 @@ func TestAvailableGPU(t *testing.T) {
 
 		tt := []struct {
 			name        string
-			usageClient func(context.Context, *gomock.Controller) clients.UsageClientInterface
+			usageClient func(context.Context, *gomock.Controller) usage.UsageClientInterface
 			err         error
 		}{
 			{
 				name: "failure on usage client request",
-				usageClient: func(ctx context.Context, ctrl *gomock.Controller) clients.UsageClientInterface {
+				usageClient: func(ctx context.Context, ctrl *gomock.Controller) usage.UsageClientInterface {
 					usageClient := mock.NewMockUsageClientInterface(ctrl)
 					usageClient.EXPECT().
 						ComputeUsage(gomock.Any(), gomock.Any(), gomock.Any()).
@@ -96,7 +95,7 @@ func TestAvailableGPU(t *testing.T) {
 			t.Fatal("should not return any error")
 		}
 
-		if diff := cmp.Diff(gpu, common.GPU(int64(1))); diff != "" {
+		if diff := cmp.Diff(gpu, usage.GPU(int64(1))); diff != "" {
 			t.Fatalf("should be 1, got %v", gpu)
 			t.Fatal(diff)
 		}

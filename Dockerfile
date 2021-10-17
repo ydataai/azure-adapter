@@ -1,4 +1,4 @@
-ARG GOLANG_VERSION=1.15
+ARG GOLANG_VERSION=1.17
 FROM golang:${GOLANG_VERSION} as builder
 
 WORKDIR /azure-quota-provider
@@ -19,7 +19,7 @@ RUN go build -a -o server ./cmd/server
 FROM gcr.io/distroless/base:latest-amd64
 WORKDIR /
 
-LABEL org.opencontainers.image.source https://github.com/ydataai/azure-quota-provider
+LABEL org.opencontainers.image.source https://github.com/ydataai/azure-adapter
 
 COPY --from=builder /azure-quota-provider/server .
 

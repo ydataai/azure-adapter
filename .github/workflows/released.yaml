@@ -1,18 +1,37 @@
-name: Release
+name: Released
+
 
 on:
   release:
-    types: [ released ]
+    types:
+    - released
+
 
 env:
-  COMPONENT: azure/quota-provider
-  DOCKER_CONTAINER_REGISTRY: ${{ secrets.PRIVATE_CONTAINER_REGISTRY }}
+  COMPONENT: azure-quota-provider
+  COMPONENT_PATH: distributions/azure/quota-provider/
   DOCKER_IMAGE_URL: ${{ secrets.PRIVATE_CONTAINER_REGISTRY }}/${{ github.repository_owner }}/azure-quota-provider
 
+
 jobs:
-  prepare:
-    name: Extract Version and Build number
+  cancel_previous:
+    name: 'Cancel Previous Runs'
     runs-on: ubuntu-20.04
+    timeout-minutes: 3
+
+    steps:
+      - uses: ydataai/cancel-workflow-action@0.7.0
+        with:
+          ignore_sha: true
+          access_token: ${{ secrets.ACCESS_TOKEN }}
+
+
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-20.04
+
+    needs:
+    - cancel_previous
 
     outputs:
       build_number: ${{ steps.short_sha.outputs.value }}
@@ -21,7 +40,7 @@ jobs:
     steps:
     - name: Version
       id: version
-      run: echo ::set-output name=value::`echo ${{ github.ref }} | sed -n -E 's/refs\/tags\/([0-9]+.[0-9]+.[0-9]+)/\1/p'`
+      run: echo ::set-output name=value::${GITHUB_REF#refs/*/}
 
     - uses: actions/checkout@v2
 
@@ -34,13 +53,14 @@ jobs:
     name: Docker Tag and Push
     runs-on: ubuntu-20.04
 
-    needs: prepare
+    needs:
+    - prepare
 
     steps:
     - name: Login to GitHub docker
       uses: docker/login-action@v1
       with:
-        registry: ${{ env.DOCKER_CONTAINER_REGISTRY }}
+        registry: ${{ secrets.PRIVATE_CONTAINER_REGISTRY }}
         username: ${{ github.actor }}
         password: ${{ secrets.GHCR_TOKEN }}
 
@@ -58,7 +78,9 @@ jobs:
     name: Update Manifests
     runs-on: ubuntu-20.04
 
-    needs: prepare
+    needs:
+    - prepare
+    - docker
 
     steps:
     - name: Checkout Manifests repo
@@ -75,7 +97,7 @@ jobs:
       env:
         VERSION: ${{ needs.prepare.outputs.version }}
       run: |
-        cd ydata/${COMPONENT}
+        cd ${COMPONENT_PATH}
         kustomize edit set image ${{ secrets.KUSTOMIZE_PROVIDER_CONTAINER_IMAGE }}=${DOCKER_IMAGE_URL}:${VERSION}
 
     - name: Commit and push image update into manifests repo

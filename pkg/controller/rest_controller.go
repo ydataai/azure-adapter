@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/ydataai/azure-quota-provider/pkg/server"
-	"github.com/ydataai/azure-quota-provider/pkg/service"
+	"github.com/ydataai/azure-adapter/pkg/server"
+	"github.com/ydataai/azure-adapter/pkg/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
