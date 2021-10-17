@@ -8,9 +8,9 @@ on:
 
 
 env:
-  COMPONENT: azure-adapter
-  COMPONENT_PATH: distributions/azure/adapter/
-  DOCKER_IMAGE_URL: ${{ secrets.PRIVATE_CONTAINER_REGISTRY }}/${{ github.repository_owner }}/azure-adapter
+  COMPONENT: azure-quota-provider
+  COMPONENT_PATH: distributions/azure/quota-provider/
+  DOCKER_IMAGE_URL: ${{ secrets.PRIVATE_CONTAINER_REGISTRY }}/${{ github.repository_owner }}/azure-quota-provider
 
 
 jobs:
