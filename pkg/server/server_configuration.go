@@ -1,6 +1,6 @@
 package server
 
-import "github.com/ydataai/azure-quota-provider/pkg/common"
+import "github.com/ydataai/azure-adapter/pkg/common"
 
 // Configuration defines a struct with required environment variables for server
 type Configuration struct {

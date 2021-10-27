@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ydataai/azure-quota-provider/pkg/clients"
-	"github.com/ydataai/azure-quota-provider/pkg/common"
-	"github.com/ydataai/azure-quota-provider/pkg/controller"
-	"github.com/ydataai/azure-quota-provider/pkg/server"
-	"github.com/ydataai/azure-quota-provider/pkg/service"
+	"github.com/ydataai/azure-adapter/pkg/common"
+	"github.com/ydataai/azure-adapter/pkg/component/marketplace"
+	"github.com/ydataai/azure-adapter/pkg/component/usage"
+	"github.com/ydataai/azure-adapter/pkg/controller"
+	"github.com/ydataai/azure-adapter/pkg/server"
+	"github.com/ydataai/azure-adapter/pkg/service"
 
 	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-12-01/compute"
 	"github.com/Azure/go-autorest/autorest/azure/auth"
@@ -37,15 +38,20 @@ func main() {
 	var logger = logrus.New()
 	logger.SetLevel(applicationConfiguration.logLevel)
 
-	computeUsageClient := compute.NewUsageClient(applicationConfiguration.subscriptionID)
 	authorizer, err := auth.NewAuthorizerFromEnvironment()
 	if err != nil {
 		logger.Error(err)
 		os.Exit(1)
 	}
+
+	computeUsageClient := compute.NewUsageClient(applicationConfiguration.subscriptionID)
 	computeUsageClient.Authorizer = authorizer
 
-	usageClient := clients.NewUsageClient(logger, computeUsageClient)
+	marketplaceClient := marketplace.NewMarketplaceClient(logger, applicationConfiguration.subscriptionID)
+	marketplaceClient.Client.Authorizer = authorizer
+
+	usageClient := usage.NewUsageClient(logger, computeUsageClient)
+
 	restService := service.NewRESTService(logger, restServiceConfiguration, usageClient)
 	restController := controller.NewRESTController(logger, restService, restControllerConfiguration)
 
@@ -57,7 +63,6 @@ func main() {
 	for err := range s.ErrCh {
 		logger.Error(err)
 	}
-
 }
 
 func initConfigurationVariables(configurations []common.ConfigurationVariables) error {
@@ -66,6 +71,5 @@ func initConfigurationVariables(configurations []common.ConfigurationVariables) 
 			return err
 		}
 	}
-
 	return nil
 }

@@ -1,6 +1,6 @@
 package service
 
-import "github.com/ydataai/azure-quota-provider/pkg/common"
+import "github.com/ydataai/azure-adapter/pkg/common"
 
 // RESTServiceConfiguration defines required configuration for rest service
 type RESTServiceConfiguration struct {
