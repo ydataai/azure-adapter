@@ -18,14 +18,14 @@ type MarketplaceClient struct {
 }
 
 // NewMarketplaceClient initializes marketplace client
-func NewMarketplaceClient(logger *logrus.Logger, subscriptionID string) MarketplaceClient {
+func NewMarketplaceClient(logger *logrus.Logger) MarketplaceClient {
 	return MarketplaceClient{
 		logger: logger,
-		Client: New(subscriptionID),
+		Client: New(),
 	}
 }
 
-// UsageEvent sends usage event to marketplace api for metering purpose.
+// CreateUsageEvent sends usage event to marketplace api for metering purpose.
 func (c MarketplaceClient) CreateUsageEvent(ctx context.Context, event UsageEventReq) (UsageEventRes, error) {
 	req, err := c.CreateUsageEventPreparer(ctx, event)
 	if err != nil {
