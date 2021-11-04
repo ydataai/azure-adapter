@@ -47,7 +47,7 @@ func main() {
 	computeUsageClient := compute.NewUsageClient(applicationConfiguration.subscriptionID)
 	computeUsageClient.Authorizer = authorizer
 
-	marketplaceClient := marketplace.NewMarketplaceClient(logger, applicationConfiguration.subscriptionID)
+	marketplaceClient := marketplace.NewMarketplaceClient(logger)
 	marketplaceClient.Client.Authorizer = authorizer
 
 	usageClient := usage.NewUsageClient(logger, computeUsageClient)
