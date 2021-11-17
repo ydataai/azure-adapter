@@ -20,11 +20,13 @@ type MarketplaceClient struct {
 }
 
 // NewMarketplaceClient initializes marketplace client
-func NewMarketplaceClient(config AzureMarketplaceConfiguration, logger logging.Logger) cloud.MeteringService {
+func NewMarketplaceClient(config AzureMarketplaceConfiguration, authorizer autorest.Authorizer, logger logging.Logger) cloud.MeteringService {
+	client := New()
+	client.Authorizer = authorizer
 	return &MarketplaceClient{
 		config: config,
 		logger: logger,
-		client: New(),
+		client: client,
 	}
 }
 
