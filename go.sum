@@ -118,6 +118,8 @@ github.com/ugorji/go/codec v1.2.6 h1:7kbGefxLoDBuYXOms4yD7223OpNMMPNPZxXk5TvFcyQ
 github.com/ugorji/go/codec v1.2.6/go.mod h1:V6TCNZ4PHqoHGFZuSG1W8nrCzzdgA2DozYxWFFpvxTw=
 github.com/ydataai/go-core v0.0.0-20211116234317-cd5304df1d26 h1:5zJs9Ct17HxpR/1nqN7suzVaQLdv9WbmHjtc3upwWZ0=
 github.com/ydataai/go-core v0.0.0-20211116234317-cd5304df1d26/go.mod h1:RE22UNg+oVWbR9V4LhhYHcCEd/T81R9IyG7LN+9VCyo=
+github.com/ydataai/go-core v0.0.0-20211117134902-51b794d29554 h1:aHi2wA0AgnZHi9cjpUhjvN2ILWVxV5di8vHcrTNJjGY=
+github.com/ydataai/go-core v0.0.0-20211117134902-51b794d29554/go.mod h1:RE22UNg+oVWbR9V4LhhYHcCEd/T81R9IyG7LN+9VCyo=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
 golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
