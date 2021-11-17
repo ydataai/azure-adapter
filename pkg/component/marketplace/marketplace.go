@@ -6,19 +6,19 @@ import (
 
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
-	"github.com/sirupsen/logrus"
+	"github.com/ydataai/go-core/pkg/common/logging"
 )
 
 const APIVersion = "2018-08-31"
 
 // MarketplaceClient defines a struct with required dependencies for marketplace client
 type MarketplaceClient struct {
-	logger *logrus.Logger
+	logger logging.Logger
 	Client BaseClient
 }
 
 // NewMarketplaceClient initializes marketplace client
-func NewMarketplaceClient(logger *logrus.Logger) MarketplaceClient {
+func NewMarketplaceClient(logger logging.Logger) MarketplaceClient {
 	return MarketplaceClient{
 		logger: logger,
 		Client: New(),
