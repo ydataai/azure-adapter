@@ -61,7 +61,9 @@ func (c MarketplaceClient) CreateUsageEvent(ctx context.Context, event cloud.Usa
 // CreateUsageEventBatch sends usage batch events to marketplace api for metering purpose.
 func (c MarketplaceClient) CreateUsageEventBatch(ctx context.Context, batch cloud.UsageEventBatchReq) (cloud.UsageEventBatchRes, error) {
 	events := []UsageEventReq{}
+	resourceDimension := map[string]string{}
 	for _, request := range batch.Request {
+		resourceDimension[c.config.resourceUri] = request.DimensionID
 		event := UsageEventReq{
 			ResourceId: c.config.resourceUri,
 			Plan:       c.config.planId,
@@ -92,7 +94,7 @@ func (c MarketplaceClient) CreateUsageEventBatch(ctx context.Context, batch clou
 		}
 		event := cloud.UsageEventRes{
 			UsageEventID: result.UsageEventId,
-			DimensionID:  result.ResourceId,
+			DimensionID:  result.Dimension,
 			Status:       result.Status,
 		}
 		results = append(results, event)
