@@ -5,7 +5,7 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-12-01/compute"
 
-	"github.com/sirupsen/logrus"
+	"github.com/ydataai/go-core/pkg/common/logging"
 )
 
 // UsageClientInterface defines a interface for usage client
@@ -15,13 +15,13 @@ type UsageClientInterface interface {
 
 // UsageClient defines a struct with required dependencies for usage client
 type UsageClient struct {
-	logger *logrus.Logger
+	logger logging.Logger
 	client compute.UsageClient
 }
 
 // NewUsageClient initializes usage client
 func NewUsageClient(
-	logger *logrus.Logger,
+	logger logging.Logger,
 	client compute.UsageClient,
 ) UsageClient {
 	return UsageClient{

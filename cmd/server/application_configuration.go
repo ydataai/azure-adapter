@@ -1,32 +1,14 @@
 package main
 
 import (
-	"github.com/ydataai/azure-adapter/pkg/common"
-
-	"github.com/sirupsen/logrus"
+	"github.com/kelseyhightower/envconfig"
 )
 
-type configuration struct {
-	logLevel       logrus.Level
-	subscriptionID string
+type Configuration struct {
+	SubscriptionID string `envconfig:"ARM_SUBSCRIPTION_ID" required:"true"`
 }
 
-func (c *configuration) LoadEnvVars() error {
-	logLevel, err := common.VariableFromEnvironment("LOG_LEVEL")
-	if err != nil {
-		return err
-	}
-
-	level, err := logrus.ParseLevel(logLevel)
-	if err != nil {
-		return err
-	}
-	c.logLevel = level
-
-	c.subscriptionID, err = common.VariableFromEnvironment("ARM_SUBSCRIPTION_ID")
-	if err != nil {
-		return err
-	}
-
-	return nil
+// LoadEnvVars reads all env vars required for the server package
+func (c *Configuration) LoadFromEnvVars() error {
+	return envconfig.Process("", c)
 }

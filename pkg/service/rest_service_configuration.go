@@ -1,26 +1,16 @@
 package service
 
-import "github.com/ydataai/azure-adapter/pkg/common"
+import (
+	"github.com/kelseyhightower/envconfig"
+)
 
 // RESTServiceConfiguration defines required configuration for rest service
 type RESTServiceConfiguration struct {
-	location    string
-	machineType string
+	Location    string `envconfig:"LOCATION" required:"true"`
+	MachineType string `envconfig:"MACHINE_TYPE" required:"true"`
 }
 
-// LoadEnvVars parses the required configuration variables. Throws an error if the validations aren't met
-func (c *RESTServiceConfiguration) LoadEnvVars() error {
-	location, err := common.VariableFromEnvironment("LOCATION")
-	if err != nil {
-		return err
-	}
-	c.location = location
-
-	machineType, err := common.VariableFromEnvironment("MACHINE_TYPE")
-	if err != nil {
-		return err
-	}
-	c.machineType = machineType
-
-	return nil
+// LoadFromEnvVars parses the required configuration variables
+func (c *RESTServiceConfiguration) LoadFromEnvVars() error {
+	return envconfig.Process("", c)
 }

@@ -3,19 +3,29 @@ package service_test
 import (
 	"context"
 	"errors"
+	"fmt"
+	"os"
 	"testing"
 
 	"github.com/ydataai/azure-adapter/mock"
+	"github.com/ydataai/go-core/pkg/common/logging"
 
 	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-12-01/compute"
 	"github.com/golang/mock/gomock"
 	"github.com/google/go-cmp/cmp"
-	"github.com/sirupsen/logrus"
 	"github.com/ydataai/azure-adapter/pkg/component/usage"
 	"github.com/ydataai/azure-adapter/pkg/service"
 )
 
 func TestAvailableGPU(t *testing.T) {
+	loggerConfiguration := logging.LoggerConfiguration{}
+	if err := loggerConfiguration.LoadFromEnvVars(); err != nil {
+		fmt.Println(fmt.Errorf("could not set logging configuration. Err: %v", err))
+		os.Exit(1)
+	}
+
+	logger := logging.NewLogger(loggerConfiguration)
+
 	t.Run("failure response", func(t *testing.T) {
 		errM := errors.New("mock error")
 
@@ -45,8 +55,6 @@ func TestAvailableGPU(t *testing.T) {
 
 				ctx := context.Background()
 
-				logger := logrus.New()
-
 				restServiceConfiguration := service.RESTServiceConfiguration{}
 
 				restService := service.NewRESTService(
@@ -69,7 +77,6 @@ func TestAvailableGPU(t *testing.T) {
 		defer ctrl.Finish()
 
 		ctx := context.Background()
-		logger := logrus.New()
 
 		restServiceConfiguration := service.RESTServiceConfiguration{}
 
