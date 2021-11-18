@@ -14,8 +14,9 @@ require (
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/sirupsen/logrus v1.8.1 // indirect
-	github.com/ydataai/go-core v0.0.0-20211117134902-51b794d29554
 )
+
+require github.com/ydataai/go-core v0.1.0
 
 require (
 	github.com/Azure/go-autorest v14.2.0+incompatible // indirect

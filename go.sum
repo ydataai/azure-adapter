@@ -491,8 +491,8 @@ github.com/ugorji/go/codec v1.1.7/go.mod h1:Ax+UKWsSmolVDwsd+7N3ZtXu+yMGCf907BLY
 github.com/ugorji/go/codec v1.2.6 h1:7kbGefxLoDBuYXOms4yD7223OpNMMPNPZxXk5TvFcyQ=
 github.com/ugorji/go/codec v1.2.6/go.mod h1:V6TCNZ4PHqoHGFZuSG1W8nrCzzdgA2DozYxWFFpvxTw=
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
-github.com/ydataai/go-core v0.0.0-20211117134902-51b794d29554 h1:aHi2wA0AgnZHi9cjpUhjvN2ILWVxV5di8vHcrTNJjGY=
-github.com/ydataai/go-core v0.0.0-20211117134902-51b794d29554/go.mod h1:RE22UNg+oVWbR9V4LhhYHcCEd/T81R9IyG7LN+9VCyo=
+github.com/ydataai/go-core v0.1.0 h1:xSFBazw+A2fw9vOOiYmlIfhiBpXguYmm4+oDzldtjvg=
+github.com/ydataai/go-core v0.1.0/go.mod h1:RE22UNg+oVWbR9V4LhhYHcCEd/T81R9IyG7LN+9VCyo=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
