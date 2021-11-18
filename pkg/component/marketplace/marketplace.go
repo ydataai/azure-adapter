@@ -33,8 +33,8 @@ func NewMarketplaceClient(config AzureMarketplaceConfiguration, authorizer autor
 // CreateUsageEvent sends usage event to marketplace api for metering purpose.
 func (c MarketplaceClient) CreateUsageEvent(ctx context.Context, event cloud.UsageEventReq) (cloud.UsageEventRes, error) {
 	azevent := UsageEventReq{
-		ResourceId: c.config.resourceUri,
-		Plan:       c.config.planId,
+		ResourceId: c.config.ResourceUri,
+		Plan:       c.config.PlanId,
 		Dimension:  event.DimensionID,
 		StartTime:  event.StartAt,
 		Quantity:   event.Quantity,
@@ -65,10 +65,10 @@ func (c MarketplaceClient) CreateUsageEventBatch(ctx context.Context, batch clou
 	events := []UsageEventReq{}
 	resourceDimension := map[string]string{}
 	for _, request := range batch.Request {
-		resourceDimension[c.config.resourceUri] = request.DimensionID
+		resourceDimension[c.config.ResourceUri] = request.DimensionID
 		event := UsageEventReq{
-			ResourceId: c.config.resourceUri,
-			Plan:       c.config.planId,
+			ResourceId: c.config.ResourceUri,
+			Plan:       c.config.PlanId,
 			Dimension:  request.DimensionID,
 			StartTime:  request.StartAt,
 			Quantity:   request.Quantity,
