@@ -4,6 +4,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
+// Configuration defines all env vars required for the application
 type Configuration struct {
 	SubscriptionID string `envconfig:"ARM_SUBSCRIPTION_ID" required:"true"`
 }
