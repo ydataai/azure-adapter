@@ -5,7 +5,7 @@ import (
 
 	"github.com/ydataai/azure-adapter/pkg/component/usage"
 
-	"github.com/sirupsen/logrus"
+	"github.com/ydataai/go-core/pkg/common/logging"
 )
 
 const (
@@ -19,14 +19,14 @@ type RESTServiceInterface interface {
 
 // RESTService defines a struct with required dependencies for rest service
 type RESTService struct {
-	logger        *logrus.Logger
+	logger        logging.Logger
 	configuration RESTServiceConfiguration
 	usageClient   usage.UsageClientInterface
 }
 
 // NewRESTService initializes rest service
 func NewRESTService(
-	logger *logrus.Logger,
+	logger logging.Logger,
 	configuration RESTServiceConfiguration,
 	usageClient usage.UsageClientInterface,
 ) RESTService {
@@ -41,7 +41,7 @@ func NewRESTService(
 func (rs RESTService) AvailableGPU(ctx context.Context) (usage.GPU, error) {
 	rs.logger.Infof("calculating how many GPUs available for Azure")
 
-	usageResult, err := rs.usageClient.ComputeUsage(ctx, rs.configuration.location, rs.configuration.machineType)
+	usageResult, err := rs.usageClient.ComputeUsage(ctx, rs.configuration.Location, rs.configuration.MachineType)
 	if err != nil {
 		rs.logger.Errorf("while fetching list of compute usage. Error %v", err)
 		return usage.GPU(0), err
