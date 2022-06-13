@@ -49,7 +49,8 @@ func (rs RESTService) AvailableGPU(ctx context.Context) (usage.GPU, error) {
 	}
 
 	rs.logger.Infof(
-		"got result for resources %s/%s: %v", rs.configuration.Location, rs.configuration.MachineType, usageResult)
+		"resources for %s/%s -> Limit: %d | Current: %d",
+		rs.configuration.Location, rs.configuration.MachineType, *usageResult.Limit, *usageResult.CurrentValue)
 
 	availableGPU := (*usageResult.Limit - int64(*usageResult.CurrentValue)) / vCPUToGPUFactor
 
