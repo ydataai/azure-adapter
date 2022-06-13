@@ -41,7 +41,7 @@ func main() {
 
 	logger := logging.NewLogger(loggerConfiguration)
 
-	authorizer, err := auth.NewAuthorizerFromEnvironment()
+	authorizer, err := auth.NewAuthorizerFromCLI()
 	if err != nil {
 		logger.Error(err)
 		os.Exit(1)
