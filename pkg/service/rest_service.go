@@ -39,17 +39,21 @@ func NewRESTService(
 
 // AvailableGPU ..
 func (rs RESTService) AvailableGPU(ctx context.Context) (usage.GPU, error) {
-	rs.logger.Infof("calculating how many GPUs available for Azure")
+	rs.logger.Infof("fetch available GPUs from quota API")
 
 	usageResult, err := rs.usageClient.ComputeUsage(ctx, rs.configuration.Location, rs.configuration.MachineType)
 	if err != nil {
-		rs.logger.Errorf("while fetching list of compute usage. Error %v", err)
+		rs.logger.Errorf(
+			"while fetching list of %s/%s with error %v", rs.configuration.Location, rs.configuration.MachineType, err)
 		return usage.GPU(0), err
 	}
 
+	rs.logger.Infof(
+		"got result for resources %s/%s: %v", rs.configuration.Location, rs.configuration.MachineType, usageResult)
+
 	availableGPU := (*usageResult.Limit - int64(*usageResult.CurrentValue)) / vCPUToGPUFactor
 
-	rs.logger.Infof("calculated quantity of GPUs: %d", availableGPU)
+	rs.logger.Infof("Number of GPUs available in %s: %d", rs.configuration.Location, availableGPU)
 
 	return usage.GPU(availableGPU), nil
 }

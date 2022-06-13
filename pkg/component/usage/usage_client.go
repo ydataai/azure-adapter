@@ -4,8 +4,6 @@ import (
 	"context"
 
 	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-12-01/compute"
-
-	"github.com/ydataai/go-core/pkg/common/logging"
 )
 
 // UsageClientInterface defines a interface for usage client
@@ -15,28 +13,20 @@ type UsageClientInterface interface {
 
 // UsageClient defines a struct with required dependencies for usage client
 type UsageClient struct {
-	logger logging.Logger
 	client compute.UsageClient
 }
 
 // NewUsageClient initializes usage client
-func NewUsageClient(
-	logger logging.Logger,
-	client compute.UsageClient,
-) UsageClient {
+func NewUsageClient(client compute.UsageClient) UsageClient {
 	return UsageClient{
-		logger: logger,
 		client: client,
 	}
 }
 
 // ComputeUsage fetches compute usage list and filter a machine type
 func (uc UsageClient) ComputeUsage(ctx context.Context, location string, machineType string) (compute.Usage, error) {
-	uc.logger.Info("fetching available GPUs in Azure")
-
 	result, err := uc.client.List(ctx, location)
 	if err != nil {
-		uc.logger.Infof("while fetching usage result. Error: %v", err)
 		return compute.Usage{}, err
 	}
 
@@ -47,8 +37,6 @@ func (uc UsageClient) ComputeUsage(ctx context.Context, location string, machine
 			break
 		}
 	}
-
-	uc.logger.Infof("fetched available GPUs in Azure: %d of %d", *gpuUsage.CurrentValue, *gpuUsage.Limit)
 
 	return gpuUsage, nil
 }
