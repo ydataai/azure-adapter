@@ -50,7 +50,7 @@ func main() {
 	computeUsageClient := compute.NewUsageClient(applicationConfiguration.SubscriptionID)
 	computeUsageClient.Authorizer = authorizer
 
-	usageClient := usage.NewUsageClient(logger, computeUsageClient)
+	usageClient := usage.NewUsageClient(computeUsageClient)
 
 	restService := service.NewRESTService(logger, restServiceConfiguration, usageClient)
 	restController := controller.NewRESTController(logger, restService, restControllerConfiguration)
