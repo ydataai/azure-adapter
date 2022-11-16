@@ -3,6 +3,7 @@ package marketplace
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
@@ -32,6 +33,15 @@ func NewMarketplaceClient(config AzureMarketplaceConfiguration, authorizer autor
 
 // CreateUsageEvent sends usage event to marketplace api for metering purpose.
 func (c MarketplaceClient) CreateUsageEvent(ctx context.Context, event cloud.UsageEventReq) (cloud.UsageEventRes, error) {
+	if event.Quantity <= 0 {
+		c.logger.Infof("metric '%s' skipped (%s <-> %s) = %v",
+			event.DimensionID,
+			event.StartAt.Format(TimeLayout),
+			time.Now().Format(TimeLayout),
+			event.Quantity,
+		)
+		return cloud.UsageEventRes{}, nil
+	}
 	azevent := UsageEventReq{
 		ResourceId: c.config.ResourceUri,
 		Plan:       c.config.PlanId,
@@ -65,6 +75,15 @@ func (c MarketplaceClient) CreateUsageEventBatch(ctx context.Context, batch clou
 	events := []UsageEventReq{}
 	resourceDimension := map[string]string{}
 	for _, request := range batch.Request {
+		if request.Quantity <= 0 {
+			c.logger.Infof("metric '%s' skipped (%s <-> %s) = %v",
+				request.DimensionID,
+				request.StartAt.Format(TimeLayout),
+				time.Now().Format(TimeLayout),
+				request.Quantity,
+			)
+			continue
+		}
 		resourceDimension[c.config.ResourceUri] = request.DimensionID
 		event := UsageEventReq{
 			ResourceId: c.config.ResourceUri,
