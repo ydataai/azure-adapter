@@ -1,6 +1,6 @@
 module github.com/ydataai/azure-adapter
 
-go 1.17
+go 1.19
 
 require (
 	github.com/Azure/azure-sdk-for-go v52.5.0+incompatible
