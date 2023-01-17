@@ -37,11 +37,11 @@ jobs:
 
     - name: Git Short sha
       id: short_sha
-      run: echo "::set-output name=value::$(git rev-parse --short HEAD)"
+      run: echo "value=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
     - name: Remove prefix 'v' from version
       id: version
-      run: echo "::set-output name=value::`echo ${{ steps.semantic.outputs.new_release_version }} | sed -r 's|v()|\1|'`"
+      run: echo "value=`echo ${{ steps.semantic.outputs.new_release_version }} | sed -r 's|v()|\1|'`" >> $GITHUB_OUTPUT
 
 
   build:
