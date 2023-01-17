@@ -37,11 +37,11 @@ jobs:
 
     - name: Git Short sha
       id: short_sha
-      run: echo "::set-output name=value::$(git rev-parse --short HEAD)"
+      run: echo "value=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
     - name: Remove prefix 'v' from version
       id: version
-      run: echo "::set-output name=value::`echo ${{ steps.semantic.outputs.new_release_version }} | sed -r 's|v()|\1|'`"
+      run: echo "value=`echo ${{ steps.semantic.outputs.new_release_version }} | sed -r 's|v()|\1|'`" >> $GITHUB_OUTPUT
 
 
   build:
@@ -77,10 +77,10 @@ jobs:
       run: make build
 
 
-  dev-release:
+  releases:
     if: needs.prepare.outputs.new_release == 'true'
 
-    name: Dev Release
+    name: Dev and Draft Releases
     runs-on:
     - self-hosted
     - micro
@@ -102,20 +102,6 @@ jobs:
         body: ${{ github.event.head_commit.message }}
         prerelease: true
 
-
-  draft-release:
-    if: needs.prepare.outputs.new_release == 'true'
-
-    name: Draft Release
-    runs-on:
-    - self-hosted
-    - micro
-
-    needs:
-    - prepare
-    - build
-
-    steps:
     - name: Delete Previous drafts
       uses: hugo19941994/delete-draft-releases@v1.0.0
       env:
