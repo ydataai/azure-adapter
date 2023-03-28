@@ -1,4 +1,4 @@
-package service_test
+package usage_test
 
 import (
 	"context"
@@ -7,14 +7,13 @@ import (
 	"os"
 	"testing"
 
+	compute "github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute"
 	"github.com/ydataai/azure-adapter/mock"
 	"github.com/ydataai/go-core/pkg/common/logging"
 
-	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-12-01/compute"
 	"github.com/golang/mock/gomock"
 	"github.com/google/go-cmp/cmp"
-	"github.com/ydataai/azure-adapter/pkg/component/usage"
-	"github.com/ydataai/azure-adapter/pkg/service"
+	"github.com/ydataai/azure-adapter/internal/usage"
 )
 
 func TestAvailableGPU(t *testing.T) {
@@ -31,12 +30,12 @@ func TestAvailableGPU(t *testing.T) {
 
 		tt := []struct {
 			name        string
-			usageClient func(context.Context, *gomock.Controller) usage.UsageClientInterface
+			usageClient func(context.Context, *gomock.Controller) usage.Client
 			err         error
 		}{
 			{
 				name: "failure on usage client request",
-				usageClient: func(ctx context.Context, ctrl *gomock.Controller) usage.UsageClientInterface {
+				usageClient: func(ctx context.Context, ctrl *gomock.Controller) usage.Client {
 					usageClient := mock.NewMockUsageClientInterface(ctrl)
 					usageClient.EXPECT().
 						ComputeUsage(gomock.Any(), gomock.Any(), gomock.Any()).
@@ -55,9 +54,9 @@ func TestAvailableGPU(t *testing.T) {
 
 				ctx := context.Background()
 
-				restServiceConfiguration := service.RESTServiceConfiguration{}
+				restServiceConfiguration := usage.RESTServiceConfiguration{}
 
-				restService := service.NewRESTService(
+				restService := usage.NewRESTService(
 					logger,
 					restServiceConfiguration,
 					tc.usageClient(ctx, ctrl),
@@ -78,7 +77,7 @@ func TestAvailableGPU(t *testing.T) {
 
 		ctx := context.Background()
 
-		restServiceConfiguration := service.RESTServiceConfiguration{}
+		restServiceConfiguration := usage.RESTServiceConfiguration{}
 
 		currentValue := int32(6)
 		limit := int64(12)
@@ -91,7 +90,7 @@ func TestAvailableGPU(t *testing.T) {
 				Limit:        &limit,
 			}, nil)
 
-		restService := service.NewRESTService(
+		restService := usage.NewRESTService(
 			logger,
 			restServiceConfiguration,
 			usageClient,

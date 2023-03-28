@@ -1,4 +1,5 @@
-package service
+// Package usage offers objects and methods to help using usage APIs
+package usage
 
 import (
 	"github.com/kelseyhightower/envconfig"

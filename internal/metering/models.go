@@ -1,23 +1,24 @@
-package marketplace
+// Package metering provides objects to interact with metering API
+package metering
 
 import (
+	"net/http"
 	"time"
-
-	"github.com/Azure/go-autorest/autorest"
 )
 
 // UsageEventReq a type to represent the usage metering event request
-type UsageEventReq struct {
-	ResourceId string    `json:"resourceUri"`        // unique identifier of the resource against which usage is emitted.
-	Quantity   float32   `json:"quantity"`           // how many units were consumed for the date and hour specified in effectiveStartTime, must be greater than 0, can be integer or float value
-	Dimension  string    `json:"dimension"`          // custom dimension identifier
-	StartTime  time.Time `json:"effectiveStartTime"` // time in UTC when the usage event occurred, from now and until 24 hours back
-	Plan       string    `json:"planId"`             // id of the plan purchased for the offer
+type usageEvent struct {
+	Dimension          string    `json:"dimension"`
+	Quantity           float32   `json:"quantity"`
+	EffectiveStartTime time.Time `json:"effectiveStartTime"`
+
+	ResourceURI string `json:"resourceUri"` // unique identifier of the resource against which usage is emitted.
+	PlanID      string `json:"planId"`      // id of the plan purchased for the offer
 }
 
 // UsageEventRes a type to represent the usage metering event response
-type UsageEventRes struct {
-	autorest.Response  `json:"-"`
+type usageEventResponse struct {
+	*http.Response     `json:"-"`
 	UsageEventId       string                `json:"usageEventId"`       // unique identifier associated with the usage event in Microsoft records
 	Status             string                `json:"status"`             // this is the only value in case of single usage event
 	MessageTime        time.Time             `json:"messageTime"`        // time in UTC this event was accepted
@@ -26,25 +27,25 @@ type UsageEventRes struct {
 	Dimension          string                `json:"dimension"`          // custom dimension identifier
 	EffectiveStartTime time.Time             `json:"effectiveStartTime"` // time in UTC when the usage event occurred, as sent by the ISV
 	PlanId             string                `json:"planId"`             // id of the plan purchased for the offer
-	Error              UsageEventErrorDetail `json:"error"`
+	Error              usageEventErrorDetail `json:"error"`
 }
 
 // UsageEventErrorDetail represents a detail error mensage.
-type UsageEventErrorDetail struct {
+type usageEventErrorDetail struct {
 	Message string                  `json:"message"`
 	Target  string                  `json:"target"`
 	Code    string                  `json:"code"`
-	Details []UsageEventErrorDetail `json:"details,omitempty"`
+	Details []usageEventErrorDetail `json:"details,omitempty"`
 }
 
 // UsageEventBatchReq a type to represent the usage metering batch events request
-type UsageEventBatchReq struct {
-	Request []UsageEventReq `json:"request"` // batch events.
+type usageEventBatch struct {
+	Events []usageEvent `json:"request"` // batch events.
 }
 
 // UsageEventRes a type to represent the usage metering event response
-type UsageEventBatchRes struct {
-	autorest.Response `json:"-"`
-	Count             int             `json:"count"`  // number of records in the response
-	Result            []UsageEventRes `json:"result"` // result
+type usageEventBatchResponse struct {
+	*http.Response `json:"-"`
+	Count          int                  `json:"count"`  // number of records in the response
+	Result         []usageEventResponse `json:"result"` // result
 }

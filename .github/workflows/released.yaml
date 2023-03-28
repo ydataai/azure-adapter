@@ -45,9 +45,7 @@ jobs:
 
   prepare:
     name: Prepare
-    runs-on:
-    - self-hosted
-    - micro
+    runs-on: ubuntu-22.04
 
     needs:
     - cancel_previous
@@ -77,6 +75,10 @@ jobs:
     needs:
     - prepare
 
+    strategy:
+      matrix:
+        package: [metering, quota]
+
     steps:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -90,7 +92,7 @@ jobs:
 
     - name: Docker tag release
       env:
-        REPOSITORY: ${{ env.DOCKER_REPOSITORY }}
+        REPOSITORY: ${{ env.DOCKER_REPOSITORY }}/${{ matrix.package }}
         TAG: ${{ needs.prepare.outputs.version }}.${{ needs.prepare.outputs.build_number }}
         NEW_TAG: ${{ needs.prepare.outputs.version }}
       run: |
@@ -101,13 +103,16 @@ jobs:
 
   update-manifests:
     name: Update Manifests
-    runs-on:
-    - self-hosted
-    - micro
+    runs-on: ubuntu-22.04
 
     needs:
     - prepare
     - docker
+
+    strategy:
+      max-parallel: 1
+      matrix:
+        package: [metering, quota]
 
     steps:
     - name: Checkout Manifests repo
@@ -122,10 +127,12 @@ jobs:
 
     - name: Update kustomization image tag
       env:
+        CONTAINER_PKG: ${{ env.CONTAINER }}-${{ matrix.package }}
+        DOCKER_IMAGE_TAG: ${{ env.DOCKER_REPOSITORY }}/${{ matrix.package }}:${{ needs.prepare.outputs.version }}
         VERSION: ${{ needs.prepare.outputs.version }}
       run: |
         cd ${COMPONENT_PATH}
-        kustomize edit set image ${CONTAINER}=${DOCKER_REPOSITORY}:${VERSION}
+        kustomize edit set image ${CONTAINER_PKG}=${DOCKER_IMAGE_TAG}
 
     - name: Commit and push image update into manifests repo
       env:
@@ -133,5 +140,5 @@ jobs:
       run: |
         git config user.email "azory@ydata.ai"
         git config user.name "Azory YData Bot"
-        git commit -a -m "chore(bump): [CI] [PROD] bump ${{ env.COMPONENT }} to $VERSION"
+        git commit -a -m "chore(bump): [CI] [PROD] bump ${{ env.COMPONENT }} package ${{ matrix.package }} to $VERSION"
         git push origin master

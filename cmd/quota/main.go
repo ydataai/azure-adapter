@@ -1,3 +1,4 @@
+// Package main for quota executable
 package main
 
 import (
@@ -9,12 +10,11 @@ import (
 	"github.com/ydataai/go-core/pkg/common/logging"
 	"github.com/ydataai/go-core/pkg/common/server"
 
-	"github.com/ydataai/azure-adapter/pkg/component/usage"
-	"github.com/ydataai/azure-adapter/pkg/controller"
-	"github.com/ydataai/azure-adapter/pkg/service"
+	"github.com/ydataai/azure-adapter/internal/configuration"
+	"github.com/ydataai/azure-adapter/internal/usage"
 
-	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2020-12-01/compute"
-	"github.com/Azure/go-autorest/autorest/azure/auth"
+	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
+	compute "github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute"
 )
 
 var (
@@ -22,8 +22,8 @@ var (
 )
 
 func main() {
-	applicationConfiguration := Configuration{}
-	restServiceConfiguration := service.RESTServiceConfiguration{}
+	applicationConfiguration := configuration.Application{}
+	restServiceConfiguration := usage.RESTServiceConfiguration{}
 	serverConfiguration := server.HTTPServerConfiguration{}
 	restControllerConfiguration := config.RESTControllerConfiguration{}
 	loggerConfiguration := logging.LoggerConfiguration{}
@@ -41,22 +41,23 @@ func main() {
 
 	logger := logging.NewLogger(loggerConfiguration)
 
-	authorizer, err := auth.NewAuthorizerFromEnvironment()
+	cred, err := azidentity.NewDefaultAzureCredential(nil)
 	if err != nil {
-		logger.Error(err)
-		os.Exit(1)
+		logger.Fatal(err)
 	}
 
-	computeUsageClient := compute.NewUsageClient(applicationConfiguration.SubscriptionID)
-	computeUsageClient.Authorizer = authorizer
-
-	usageClient := usage.NewUsageClient(computeUsageClient)
-
-	restService := service.NewRESTService(logger, restServiceConfiguration, usageClient)
-	restController := controller.NewRESTController(logger, restService, restControllerConfiguration)
+	computeUsageClient, err := compute.NewUsageClient(applicationConfiguration.SubscriptionID, cred, nil)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	usageClient := usage.NewClient(computeUsageClient)
+	restService := usage.NewRESTService(logger, restServiceConfiguration, usageClient)
+	restController := usage.NewRESTController(logger, restService, restControllerConfiguration)
 
 	serverCtx := context.Background()
 	httpServer := server.NewServer(logger, serverConfiguration)
+	httpServer.AddHealthz()
+	httpServer.AddReadyz(nil)
 	restController.Boot(httpServer)
 	httpServer.Run(serverCtx)
 
