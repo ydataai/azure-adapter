@@ -13,7 +13,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/runtime"
 	"github.com/ydataai/go-core/pkg/common/logging"
-	coreMetering "github.com/ydataai/go-core/pkg/metering"
+	"github.com/ydataai/go-core/pkg/metering"
 )
 
 type apiPath string
@@ -29,7 +29,7 @@ const (
 )
 
 // Client defines a struct with required dependencies for metering client
-type Client struct {
+type client struct {
 	config Configuration
 	logger logging.Logger
 	pl     runtime.Pipeline
@@ -38,13 +38,13 @@ type Client struct {
 // NewClient initializes metering client
 func NewClient(
 	credential azcore.TokenCredential, config Configuration, logger logging.Logger,
-) (Client, error) {
+) (metering.Client, error) {
 	pl, err := armruntime.NewPipeline("marketplace", "v0.1.0", credential, runtime.PipelineOptions{}, nil)
 	if err != nil {
-		return Client{}, err
+		return client{}, err
 	}
 
-	return Client{
+	return client{
 		config: config,
 		logger: logger,
 		pl:     pl,
@@ -53,9 +53,7 @@ func NewClient(
 
 // CreateUsageEvent creates and sends a request to create an UsageEvent
 // It returns an error if any or an UsageEventResponse from azure
-func (c Client) CreateUsageEvent(
-	ctx context.Context, event coreMetering.UsageEvent,
-) (coreMetering.UsageEventResponse, error) {
+func (c client) CreateUsageEvent(ctx context.Context, event metering.UsageEvent) (metering.UsageEventResponse, error) {
 	c.logger.Infof("received create event with %+v", event)
 
 	if event.Quantity <= 0 {
@@ -65,7 +63,7 @@ func (c Client) CreateUsageEvent(
 			time.Now().Format(TimeLayout),
 			event.Quantity,
 		)
-		return coreMetering.UsageEventResponse{}, nil
+		return metering.UsageEventResponse{}, nil
 	}
 
 	azevent := usageEvent{
@@ -80,12 +78,12 @@ func (c Client) CreateUsageEvent(
 
 	req, err := createRequest(ctx, usageEventAPIPath, azevent)
 	if err != nil {
-		return coreMetering.UsageEventResponse{}, err
+		return metering.UsageEventResponse{}, err
 	}
 
 	resp, err := c.pl.Do(req)
 	if err != nil {
-		return coreMetering.UsageEventResponse{}, err
+		return metering.UsageEventResponse{}, err
 	}
 
 	c.logger.Infof("got response %+v", resp)
@@ -97,28 +95,28 @@ func (c Client) CreateUsageEvent(
 	c.logger.Info("body: ", string(bytes))
 
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusCreated) {
-		return coreMetering.UsageEventResponse{}, invalidStatusCodeError(resp)
+		return metering.UsageEventResponse{}, invalidStatusCodeError(resp)
 	}
 
 	eventResponse := usageEventResponse{}
 	if err := runtime.UnmarshalAsJSON(resp, &eventResponse); err != nil {
-		return coreMetering.UsageEventResponse{}, err
+		return metering.UsageEventResponse{}, err
 	}
 
 	c.logger.Infof("unmarshelled into event %+v", eventResponse)
 
-	return coreMetering.UsageEventResponse{
+	return metering.UsageEventResponse{
 		UsageEventID: eventResponse.UsageEventId,
 		DimensionID:  eventResponse.Dimension,
 		Status:       eventResponse.Status,
 	}, nil
 }
 
-// BatchCreateUsageEvent creates a batch of UsageEvent with azure APIs
+// CreateUsageEventBatch creates a batch of UsageEvent with azure APIs
 // It returns an error if any or an UsageEventResponse from azure
-func (c Client) BatchCreateUsageEvent(
-	ctx context.Context, batch coreMetering.UsageEventBatch,
-) (*coreMetering.UsageEventBatchResponse, error) {
+func (c client) CreateUsageEventBatch(
+	ctx context.Context, batch metering.UsageEventBatch,
+) (metering.UsageEventBatchResponse, error) {
 	events := []usageEvent{}
 
 	for _, request := range batch.Events {
@@ -144,36 +142,36 @@ func (c Client) BatchCreateUsageEvent(
 
 	req, err := createRequest(ctx, batchUsageEventAPIPath, usageEventBatch{Events: events})
 	if err != nil {
-		return nil, err
+		return metering.UsageEventBatchResponse{}, err
 	}
 
 	resp, err := c.pl.Do(req)
 	if err != nil {
-		return nil, err
+		return metering.UsageEventBatchResponse{}, err
 	}
 
 	if !runtime.HasStatusCode(resp, http.StatusOK, http.StatusCreated) {
-		return nil, invalidStatusCodeError(resp)
+		return metering.UsageEventBatchResponse{}, invalidStatusCodeError(resp)
 	}
 
 	result := &usageEventBatchResponse{}
 	if err := runtime.UnmarshalAsJSON(resp, result); err != nil {
-		return &coreMetering.UsageEventBatchResponse{}, err
+		return metering.UsageEventBatchResponse{}, err
 	}
 
-	results := []coreMetering.UsageEventResponse{}
+	results := []metering.UsageEventResponse{}
 	for _, result := range result.Result {
 		if len(result.Error.Details) > 0 {
 			c.logger.Errorf("Failed to process event batch %v.", result.Error.Details)
 		}
-		event := coreMetering.UsageEventResponse{
+		event := metering.UsageEventResponse{
 			UsageEventID: result.UsageEventId,
 			DimensionID:  result.Dimension,
 			Status:       result.Status,
 		}
 		results = append(results, event)
 	}
-	return &coreMetering.UsageEventBatchResponse{Result: results}, nil
+	return metering.UsageEventBatchResponse{Result: results}, nil
 }
 
 func createRequest(ctx context.Context, path apiPath, event interface{}) (*policy.Request, error) {

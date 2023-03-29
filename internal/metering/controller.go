@@ -7,7 +7,7 @@ import (
 
 	"github.com/ydataai/go-core/pkg/common/config"
 	"github.com/ydataai/go-core/pkg/common/server"
-	coreMetering "github.com/ydataai/go-core/pkg/metering"
+	"github.com/ydataai/go-core/pkg/metering"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ydataai/go-core/pkg/common/logging"
@@ -17,13 +17,13 @@ import (
 type RESTController struct {
 	logger           logging.Logger
 	configuration    config.RESTControllerConfiguration
-	markeplaceClient Client
+	markeplaceClient metering.Client
 }
 
 // NewRESTController initializes rest controller
 func NewRESTController(
 	logger logging.Logger,
-	marketplaceClient Client,
+	marketplaceClient metering.Client,
 	configuration config.RESTControllerConfiguration,
 ) RESTController {
 	return RESTController{
@@ -44,7 +44,7 @@ func (r RESTController) usageEvent() gin.HandlerFunc {
 		tCtx, cancel := context.WithTimeout(ctx, r.configuration.HTTPRequestTimeout)
 		defer cancel()
 
-		event := coreMetering.UsageEvent{}
+		event := metering.UsageEvent{}
 		if err := ctx.ShouldBindJSON(&event); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -70,7 +70,7 @@ func (r RESTController) batchUsageEvent() gin.HandlerFunc {
 		tCtx, cancel := context.WithTimeout(ctx, r.configuration.HTTPRequestTimeout)
 		defer cancel()
 
-		event := coreMetering.UsageEventBatch{}
+		event := metering.UsageEventBatch{}
 		if err := ctx.ShouldBindJSON(&event); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -78,7 +78,7 @@ func (r RESTController) batchUsageEvent() gin.HandlerFunc {
 
 		r.logger.Infof("got event %+v", event)
 
-		response, err := r.markeplaceClient.BatchCreateUsageEvent(tCtx, event)
+		response, err := r.markeplaceClient.CreateUsageEventBatch(tCtx, event)
 		if err != nil {
 			r.logger.Errorf("failed with error %v", err)
 			ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
