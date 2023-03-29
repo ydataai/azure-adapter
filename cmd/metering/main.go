@@ -25,14 +25,14 @@ func main() {
 	serverConfiguration := server.HTTPServerConfiguration{}
 	restControllerConfiguration := config.RESTControllerConfiguration{}
 	loggerConfiguration := logging.LoggerConfiguration{}
-	marketplaceConfiguration := metering.Configuration{}
+	meteringConfiguration := metering.Configuration{}
 
 	if err := config.InitConfigurationVariables([]config.ConfigurationVariables{
 		&applicationConfiguration,
 		&serverConfiguration,
 		&restControllerConfiguration,
 		&loggerConfiguration,
-		&marketplaceConfiguration,
+		&meteringConfiguration,
 	}); err != nil {
 		fmt.Println(fmt.Errorf("could not set configuration variables. Err: %v", err))
 		os.Exit(1)
@@ -45,7 +45,7 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	marketplaceClient, err := metering.NewClient(cred, marketplaceConfiguration, logger)
+	marketplaceClient, err := metering.NewClient(cred, meteringConfiguration, logger)
 	if err != nil {
 		logger.Fatal(err)
 	}
