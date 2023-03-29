@@ -145,7 +145,7 @@ jobs:
 
     - name: Push Docker Image
       env:
-        DOCKER_IMAGE_TAG: ${{ steps.ecr_password.outputs.registry }}/${{ env.DOCKER_REPOSITORY }}:${{ needs.prepare.outputs.version }}
+        DOCKER_IMAGE_TAG: ${{ steps.ecr_password.outputs.registry }}/${{ env.DOCKER_REPOSITORY }}/${{ matrix.package }}:${{ needs.prepare.outputs.version }}
       run: |
         docker tag ${{ steps.docker_build.outputs.imageId }} ${{ env.DOCKER_IMAGE_TAG }}
         docker push ${{ env.DOCKER_IMAGE_TAG }}
