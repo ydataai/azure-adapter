@@ -1,15 +1,18 @@
 ARG GOLANG_VERSION=1.20
-ARG COMPILE_CMD
 FROM golang:${GOLANG_VERSION} as builder
+
+ARG COMPILE_CMD
 
 WORKDIR /workspace
 
 COPY . .
 
+ENV CGO_ENABLED=0
+
 RUN go mod download
 
 # Build
-RUN CGO_ENABLED=0 go build -a -o main "./cmd/${COMPILE_CMD}"
+RUN go build -a -o main "./cmd/${COMPILE_CMD}"
 
 # Use distroless as minimal base image to package the manager binary
 FROM gcr.io/distroless/base:latest-amd64
