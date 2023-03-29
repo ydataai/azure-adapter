@@ -85,7 +85,7 @@ jobs:
         DOCKER_IMAGE_TAG: ${{ env.DOCKER_REPOSITORY }}/${{ matrix.package }}:${{ needs.prepare.outputs.version }}
       with:
         build-args: |
-          CMD:${{ matrix.package }}
+          COMPILE_CMD=${{ matrix.package }}
         context: .
         push: false
         load: true
