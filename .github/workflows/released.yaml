@@ -76,6 +76,7 @@ jobs:
     - prepare
 
     strategy:
+      fail-fast: true
       matrix:
         package: [metering, quota]
 
@@ -110,6 +111,7 @@ jobs:
     - docker
 
     strategy:
+      fail-fast: true
       max-parallel: 1
       matrix:
         package: [metering, quota]
@@ -127,7 +129,7 @@ jobs:
 
     - name: Update kustomization image tag
       env:
-        CONTAINER_PKG: ${{ env.CONTAINER }}-${{ matrix.package }}
+        CONTAINER_PKG: ${{ matrix.package }}-${{ env.CONTAINER }}
         DOCKER_IMAGE_TAG: ${{ env.DOCKER_REPOSITORY }}/${{ matrix.package }}:${{ needs.prepare.outputs.version }}
         VERSION: ${{ needs.prepare.outputs.version }}
       run: |
