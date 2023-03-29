@@ -1,19 +1,15 @@
-ARG GOLANG_VERSION=1.17
+ARG GOLANG_VERSION=1.20
+ARG COMPILE_CMD
 FROM golang:${GOLANG_VERSION} as builder
 
-WORKDIR /azure-quota-provider
-
-ENV GO111MODULE=on
-ENV CGO_ENABLED=0
-ENV GOOS=linux
-ENV GOARCH=amd64
+WORKDIR /workspace
 
 COPY . .
 
-RUN cd /azure-quota-provider && go mod download
+RUN go mod download
 
 # Build
-RUN go build -a -o server ./cmd/server
+RUN CGO_ENABLED=0 go build -a -o main "./cmd/${COMPILE_CMD}"
 
 # Use distroless as minimal base image to package the manager binary
 FROM gcr.io/distroless/base:latest-amd64
@@ -21,6 +17,6 @@ WORKDIR /
 
 LABEL org.opencontainers.image.source https://github.com/ydataai/azure-adapter
 
-COPY --from=builder /azure-quota-provider/server .
+COPY --from=builder /workspace/main .
 
-ENTRYPOINT ["/server"]
+ENTRYPOINT ["/main"]

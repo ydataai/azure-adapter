@@ -35,9 +35,7 @@ permissions:
 jobs:
   cancel_previous:
     name: 'Cancel Previous Runs'
-    runs-on:
-    - self-hosted
-    - micro
+    runs-on: ubuntu-22.04
     timeout-minutes: 3
 
     steps:
@@ -66,23 +64,28 @@ jobs:
 
 
   build:
-    name: Build
-    runs-on:
-    - self-hosted
-    - medium
+    name: Build ${{ matrix.package }} package
+    runs-on: ubuntu-22.04
 
     needs:
     - prepare
+
+    strategy:
+      fail-fast: true
+      matrix:
+        package: [metering, quota]
 
     steps:
     - uses: actions/checkout@v3
 
     - name: Build Docker Image
       id: docker_build
-      uses: docker/build-push-action@v3
+      uses: docker/build-push-action@v4
       env:
-        DOCKER_IMAGE_TAG: ${{ env.DOCKER_REPOSITORY }}:${{ needs.prepare.outputs.version }}
+        DOCKER_IMAGE_TAG: ${{ env.DOCKER_REPOSITORY }}/${{ matrix.package }}:${{ needs.prepare.outputs.version }}
       with:
+        build-args: |
+          CMD:${{ matrix.package }}
         context: .
         push: false
         load: true
@@ -109,7 +112,7 @@ jobs:
       run: echo "value=$(grep -cE "(medium|high|critical) vulnerability" ${{ steps.scan_sbom.outputs.sarif }})" >> $GITHUB_OUTPUT
 
     - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume: ${{ secrets.AWS_S3_SBOMS_ROLE_ARN }}
         aws-region: ${{ env.AWS_S3_REGION }}
@@ -149,14 +152,18 @@ jobs:
 
 
   update-manifests:
-    name: Update Manifests
-    runs-on:
-    - self-hosted
-    - micro
+    name: Update Manifests for ${{ matrix.package }} package
+    runs-on: ubuntu-22.04
 
     needs:
     - prepare
     - build
+
+    strategy:
+      fail-fast: true
+      max-parallel: 1
+      matrix:
+        package: [metering, quota]
 
     steps:
     - name: Checkout Manifests repo
@@ -171,10 +178,12 @@ jobs:
 
     - name: Update kustomization image tag
       env:
+        CONTAINER_PKG: ${{ matrix.package }}-${{ env.CONTAINER }}
+        DOCKER_IMAGE_TAG: ${{ env.DOCKER_REPOSITORY }}/${{ matrix.package }}:${{ needs.prepare.outputs.version }}
         VERSION: ${{ needs.prepare.outputs.version }}
       run: |
         cd ${COMPONENT_PATH}
-        kustomize edit set image ${CONTAINER}=${DOCKER_REPOSITORY}:${VERSION}
+        kustomize edit set image ${CONTAINER_PKG}=${DOCKER_IMAGE_TAG}
 
     - name: Commit and push image update into manifests repo
       env:
@@ -182,5 +191,5 @@ jobs:
       run: |
         git config user.email "azory@ydata.ai"
         git config user.name "Azory YData Bot"
-        git commit -a -m "chore(bump): [CI] [DEV] bump ${{ env.COMPONENT }} to $VERSION"
+        git commit -a -m "chore(bump): [CI] [DEV] bump ${{ env.COMPONENT }} package ${{ matrix.package }} to $VERSION"
         git push origin master
