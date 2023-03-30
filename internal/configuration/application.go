@@ -7,7 +7,7 @@ import (
 
 // Application defines all env vars required for the application
 type Application struct {
-	SubscriptionID string `envconfig:"AZURE_SUBSCRIPTION_ID" required:"true"`
+	SubscriptionID string `envconfig:"SUBSCRIPTION_ID" required:"true"`
 }
 
 // LoadFromEnvVars reads all env vars required for the server package
