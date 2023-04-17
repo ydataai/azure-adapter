@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.5.0-beta.1
-	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.3.0-beta.4
+	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.3.0-beta.5
 	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute v1.0.0
 	github.com/gin-gonic/gin v1.9.0
 	github.com/golang/mock v1.6.0
