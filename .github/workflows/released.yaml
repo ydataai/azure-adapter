@@ -33,7 +33,7 @@ jobs:
     name: 'Cancel Previous Runs'
     runs-on:
     - self-hosted
-    - micro
+    - small
     timeout-minutes: 3
 
     steps:
