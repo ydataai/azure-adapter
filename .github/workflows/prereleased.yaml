@@ -49,7 +49,7 @@ jobs:
     name: Prepare
     runs-on:
     - self-hosted
-    - micro
+    - small
 
     needs:
     - cancel_previous
