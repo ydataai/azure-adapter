@@ -12,9 +12,7 @@ on:
 jobs:
   prepare:
     name: Calculate Version and build number
-    runs-on:
-    - self-hosted
-    - small
+    runs-on: ubuntu-22.04
 
     outputs:
       build_number: ${{ steps.short_sha.outputs.value }}
@@ -48,9 +46,7 @@ jobs:
     if: needs.prepare.outputs.new_release == 'true'
 
     name: Build
-    runs-on:
-    - self-hosted
-    - medium
+    runs-on: ubuntu-22.04
 
     needs:
     - prepare
@@ -59,19 +55,19 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Setup Go
-      uses: actions/setup-go@v3
+      uses: actions/setup-go@v4
       with:
-        go-version: '1.18'
+        go-version-file: 'go.mod'
 
     - name: Cache Go modules
       uses: actions/cache@v3
       with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
-          ${{ runner.OS }}-build-${{ env.cache-name }}-
-          ${{ runner.OS }}-build-
-          ${{ runner.OS }}-
+          ${{ runner.os }}-go-
 
     - name: Build for test
       run: make build
@@ -81,9 +77,7 @@ jobs:
     if: needs.prepare.outputs.new_release == 'true'
 
     name: Dev and Draft Releases
-    runs-on:
-    - self-hosted
-    - micro
+    runs-on: ubuntu-22.04
 
     needs:
     - prepare
@@ -103,7 +97,7 @@ jobs:
         prerelease: true
 
     - name: Delete Previous drafts
-      uses: hugo19941994/delete-draft-releases@v1.0.0
+      uses: hugo19941994/delete-draft-releases@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 

@@ -26,27 +26,25 @@ permissions:
 jobs:
   validate:
     name: Validate
-    runs-on:
-    - self-hosted
-    - medium
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v3
 
     - name: Setup Go
-      uses: actions/setup-go@v3
+      uses: actions/setup-go@v4
       with:
-        go-version: '1.18'
+        go-version-file: 'go.mod'
 
     - name: Cache Go modules
       uses: actions/cache@v3
       with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-build-${{ hashFiles('**/go.sum') }}
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
-          ${{ runner.OS }}-build-${{ env.cache-name }}-
-          ${{ runner.OS }}-build-
-          ${{ runner.OS }}-
+          ${{ runner.os }}-go-
 
     - name: Run build
       run: make build
@@ -60,9 +58,7 @@ jobs:
 
   static-analysis:
     name: Static Analysis
-    runs-on:
-    - self-hosted
-    - large
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v3
@@ -70,6 +66,7 @@ jobs:
     - name: Create SBOM
       uses: anchore/sbom-action@v0
       with:
+        upload-artifact-retention: 1
         format: spdx-json
         output-file: ${{ env.SBOM_FILENAME }}.spdx.json
 
@@ -87,7 +84,7 @@ jobs:
         echo "value=$(grep -cE "(medium|high|critical) vulnerability" ${{ steps.scan_sbom.outputs.sarif }})" >> $GITHUB_OUTPUT
 
     - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume: ${{ secrets.AWS_S3_SBOMS_ROLE_ARN }}
         aws-region: ${{ env.AWS_S3_REGION }}

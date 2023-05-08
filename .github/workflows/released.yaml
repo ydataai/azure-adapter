@@ -13,12 +13,18 @@ env:
   COMPONENT: azure-adapter
   COMPONENT_PATH: distributions/azure/
 
-  PRIVATE_ECR_ACCESSKEYID: ${{ secrets.AWS_ECR_ACCESSKEYID }}
-  PRIVATE_ECR_SECRETACCESSKEY: ${{ secrets.AWS_ECR_SECRETACCESSKEY }}
   PRIVATE_ECR_REGION: ${{ secrets.AWS_ECR_REGION }}
+  ECR_ROLE_ARN: ${{ secrets.AWS_ECR_ROLE_ARN }}
 
   DOCKER_REPOSITORY: azure-adapter
   CONTAINER: azure-adapter-container-image
+
+
+
+permissions:
+  id-token: write
+  contents: read
+  packages: read
 
 
 
@@ -27,7 +33,7 @@ jobs:
     name: 'Cancel Previous Runs'
     runs-on:
     - self-hosted
-    - micro
+    - small
     timeout-minutes: 3
 
     steps:
@@ -39,9 +45,7 @@ jobs:
 
   prepare:
     name: Prepare
-    runs-on:
-    - self-hosted
-    - micro
+    runs-on: ubuntu-22.04
 
     needs:
     - cancel_previous
@@ -71,37 +75,46 @@ jobs:
     needs:
     - prepare
 
+    strategy:
+      fail-fast: true
+      matrix:
+        package: [metering, quota]
+
     steps:
     - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v2
       with:
-        aws-access-key-id: ${{ env.PRIVATE_ECR_ACCESSKEYID }}
-        aws-secret-access-key: ${{ env.PRIVATE_ECR_SECRETACCESSKEY }}
+        role-to-assume: ${{ env.ECR_ROLE_ARN }}
         aws-region: ${{ env.PRIVATE_ECR_REGION }}
 
     - name: Login to Amazon ECR
       id: ecr_password
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Docker tag and push
+    - name: Docker tag release
       env:
-        SOURCE: ${{ steps.ecr_password.outputs.registry }}/${{ env.DOCKER_REPOSITORY }}:${{ needs.prepare.outputs.version }}.${{ needs.prepare.outputs.build_number }}
-        DESTINATION: ${{ steps.ecr_password.outputs.registry }}/${{ env.DOCKER_REPOSITORY }}:${{ needs.prepare.outputs.version }}
+        REPOSITORY: ${{ env.DOCKER_REPOSITORY }}/${{ matrix.package }}
+        TAG: ${{ needs.prepare.outputs.version }}.${{ needs.prepare.outputs.build_number }}
+        NEW_TAG: ${{ needs.prepare.outputs.version }}
       run: |
-        docker pull $SOURCE
-        docker tag $SOURCE $DESTINATION
-        docker push $DESTINATION
+        MANIFEST=$(aws ecr batch-get-image --repository-name $REPOSITORY --image-ids imageTag=$TAG --query 'images[].imageManifest' --output text)
+
+        aws ecr put-image --repository-name $REPOSITORY --image-tag $NEW_TAG --image-manifest "$MANIFEST"
 
 
   update-manifests:
     name: Update Manifests
-    runs-on:
-    - self-hosted
-    - micro
+    runs-on: ubuntu-22.04
 
     needs:
     - prepare
     - docker
+
+    strategy:
+      fail-fast: true
+      max-parallel: 1
+      matrix:
+        package: [metering, quota]
 
     steps:
     - name: Checkout Manifests repo
@@ -116,10 +129,12 @@ jobs:
 
     - name: Update kustomization image tag
       env:
+        CONTAINER_PKG: ${{ matrix.package }}-${{ env.CONTAINER }}
+        DOCKER_IMAGE_TAG: ${{ env.DOCKER_REPOSITORY }}/${{ matrix.package }}:${{ needs.prepare.outputs.version }}
         VERSION: ${{ needs.prepare.outputs.version }}
       run: |
         cd ${COMPONENT_PATH}
-        kustomize edit set image ${CONTAINER}=${DOCKER_REPOSITORY}:${VERSION}
+        kustomize edit set image ${CONTAINER_PKG}=${DOCKER_IMAGE_TAG}
 
     - name: Commit and push image update into manifests repo
       env:
@@ -127,5 +142,5 @@ jobs:
       run: |
         git config user.email "azory@ydata.ai"
         git config user.name "Azory YData Bot"
-        git commit -a -m "chore(bump): [CI] [PROD] bump ${{ env.COMPONENT }} to $VERSION"
+        git commit -a -m "chore(bump): [CI] [PROD] bump ${{ env.COMPONENT }} package ${{ matrix.package }} to $VERSION"
         git push origin master

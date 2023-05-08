@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	"github.com/ydataai/azure-adapter/pkg/component/usage"
+	"github.com/ydataai/azure-adapter/internal/usage"
 )
 
 // MockRESTServiceInterface is a mock of RESTServiceInterface interface.
