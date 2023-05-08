@@ -74,6 +74,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        ref: tag_1150
 
     - name: Build Docker Image
       id: docker_build
@@ -147,38 +149,38 @@ jobs:
         docker push ${{ env.DOCKER_IMAGE_TAG }}
 
 
-  update-manifests:
-    name: Update Manifests
-    runs-on:
-    - ubuntu-22.04
+  #update-manifests:
+  #  name: Update Manifests
+  #  runs-on:
+  #  - ubuntu-22.04
 
-    needs:
-    - prepare
-    - build
+  #  needs:
+  #  - prepare
+  #  - build
 
-    steps:
-    - name: Checkout Manifests repo
-      uses: actions/checkout@v3
-      with:
-        repository: ydataai/manifests
-        token: ${{ secrets.ACCESS_TOKEN }}
+  #  steps:
+  #  - name: Checkout Manifests repo
+  #    uses: actions/checkout@v3
+  #    with:
+  #      repository: ydataai/manifests
+  #      token: ${{ secrets.ACCESS_TOKEN }}
 
-    - uses: imranismail/setup-kustomize@v2
-      with:
-        kustomize-version: "3.8.5"
+  #  - uses: imranismail/setup-kustomize@v2
+  #    with:
+  #      kustomize-version: "3.8.5"
 
-    - name: Update kustomization image tag
-      env:
-        VERSION: ${{ needs.prepare.outputs.version }}
-      run: |
-        cd ${COMPONENT_PATH}
-        kustomize edit set image ${CONTAINER}=${DOCKER_REPOSITORY}:${VERSION}
+  #  - name: Update kustomization image tag
+  #    env:
+  #      VERSION: ${{ needs.prepare.outputs.version }}
+  #    run: |
+  #      cd ${COMPONENT_PATH}
+  #      kustomize edit set image ${CONTAINER}=${DOCKER_REPOSITORY}:${VERSION}
 
-    - name: Commit and push image update into manifests repo
-      env:
-        VERSION: ${{ needs.prepare.outputs.version }}
-      run: |
-        git config user.email "azory@ydata.ai"
-        git config user.name "Azory YData Bot"
-        git commit -a -m "chore(bump): [CI] [DEV] bump ${{ env.COMPONENT }} to $VERSION"
-        git push origin master
+  #  - name: Commit and push image update into manifests repo
+  #    env:
+  #      VERSION: ${{ needs.prepare.outputs.version }}
+  #    run: |
+  #      git config user.email "azory@ydata.ai"
+  #      git config user.name "Azory YData Bot"
+  #      git commit -a -m "chore(bump): [CI] [DEV] bump ${{ env.COMPONENT }} to $VERSION"
+  #      git push origin master
