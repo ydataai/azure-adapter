@@ -3,10 +3,9 @@ name: Prereleased
 
 
 on:
-  release:
-    types:
-    - prereleased
-
+  pull_request:
+    branches:
+    - master
 
 
 env:
@@ -62,7 +61,7 @@ jobs:
     steps:
     - name: Version
       id: version
-      run: echo "value=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+      run: echo "value=v1.1.5" >> $GITHUB_OUTPUT
 
 
   build:
