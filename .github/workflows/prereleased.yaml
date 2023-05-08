@@ -3,9 +3,9 @@ name: Prereleased
 
 
 on:
-  release:
-    types:
-    - prereleased
+  pull_request:
+    branches:
+    - master
 
 
 
@@ -38,7 +38,7 @@ jobs:
     name: 'Cancel Previous Runs'
     runs-on:
     - self-hosted
-    - micro
+    - medium
     timeout-minutes: 3
 
     steps:
@@ -52,7 +52,7 @@ jobs:
     name: Prepare
     runs-on:
     - self-hosted
-    - micro
+    - medium
 
     needs:
     - cancel_previous
@@ -63,7 +63,7 @@ jobs:
     steps:
     - name: Version
       id: version
-      run: echo "value=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+      run: echo "value=v1.1.5" >> $GITHUB_OUTPUT
 
 
   build:
@@ -154,7 +154,7 @@ jobs:
     name: Update Manifests
     runs-on:
     - self-hosted
-    - micro
+    - medium
 
     needs:
     - prepare
