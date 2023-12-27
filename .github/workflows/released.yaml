@@ -31,9 +31,7 @@ permissions:
 jobs:
   cancel_previous:
     name: 'Cancel Previous Runs'
-    runs-on:
-    - self-hosted
-    - small
+    runs-on: ubuntu-22.04
     timeout-minutes: 3
 
     steps:
@@ -68,9 +66,7 @@ jobs:
 
   docker:
     name: Docker Tag and Push
-    runs-on:
-    - self-hosted
-    - medium
+    runs-on: ubuntu-22.04
 
     needs:
     - prepare
