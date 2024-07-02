@@ -3,7 +3,7 @@ module github.com/ydataai/azure-adapter
 go 1.22
 
 require (
-	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.11.1
+	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.12.0
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.6.0
 	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute v1.0.0
 	github.com/gin-gonic/gin v1.10.0
@@ -14,7 +14,7 @@ require (
 )
 
 require (
-	github.com/Azure/azure-sdk-for-go/sdk/internal v1.8.0 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/internal v1.9.0 // indirect
 	github.com/AzureAD/microsoft-authentication-library-for-go v1.2.2 // indirect
 	github.com/bytedance/sonic v1.11.6 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
